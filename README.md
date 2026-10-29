@@ -22,7 +22,20 @@ The interactive shell is available with:
 .venv/bin/python -m wavefront
 ```
 
-This is intentionally a UI draft: the next slice is a real input/search widget and a SoundCloud adapter backed by the existing `yt-dlp` workflow, without bypassing protected streams or DRM.
+This is intentionally a UI draft: the next slice is wiring the real provider and playback adapters into keyboard commands, without bypassing protected streams or DRM.
+
+## Search and playback boundaries
+
+SoundCloud search is now real: the optional `--search` command invokes the local `yt-dlp` executable with a bounded `ytsearch10:` query and maps its JSON output into the same testable `Track` model. Install yt-dlp separately when you want search:
+
+```sh
+.venv/bin/pip install yt-dlp
+.venv/bin/python -m wavefront --search "ambient house"
+```
+
+Missing yt-dlp, non-zero subprocess exits, invalid JSON, empty results, and timeouts are reported explicitly; an empty search returns no results. Search does not bypass protected streams or DRM.
+
+The playback adapter is also implemented behind `YtDlpPlayer`: it streams a track URL from yt-dlp into a local `ffplay` process using a no-playlist, best-audio command. It is deliberately not exercised by the demo and does not require audio hardware in tests. The current interactive screen does not yet bind search results or playback controls to this adapter; wiring those commands is the next UI slice.
 
 ## Design direction
 

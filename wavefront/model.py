@@ -10,12 +10,28 @@ class Track:
     album: str
     duration: str
     source: str = "SoundCloud"
+    url: str = ""
 
 
 class Library:
     def __init__(self, tracks: list[Track]):
         self.tracks = tracks
         self.queue: list[Track] = []
+        self.selected = 0
+
+    @property
+    def current(self) -> Track | None:
+        return self.tracks[self.selected] if self.tracks else None
+
+    def replace_tracks(self, tracks: list[Track]) -> None:
+        self.tracks = list(tracks)
+        self.selected = 0
+
+    def select(self, index: int) -> None:
+        if not self.tracks:
+            self.selected = 0
+        else:
+            self.selected = max(0, min(index, len(self.tracks) - 1))
 
     def search(self, query: str) -> list[Track]:
         needle = query.casefold().strip()

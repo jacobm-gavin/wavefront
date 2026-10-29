@@ -7,6 +7,7 @@ import time
 from rich.console import Console
 
 from .model import Library, Track
+from .providers import YtDlpSoundCloudSearch
 from .ui import demo, render
 
 
@@ -49,9 +50,16 @@ def run(stdscr) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="A calmer SoundCloud-first terminal player")
     parser.add_argument("--demo", action="store_true", help="render a static preview")
+    parser.add_argument("--search", metavar="QUERY", help="search SoundCloud with yt-dlp")
     args = parser.parse_args()
     if args.demo:
         demo()
+    elif args.search is not None:
+        try:
+            tracks = YtDlpSoundCloudSearch().search(args.search)
+        except RuntimeError as exc:
+            parser.error(str(exc))
+        Console().print(render(Library(tracks)))
     else:
         curses.wrapper(run)
 
