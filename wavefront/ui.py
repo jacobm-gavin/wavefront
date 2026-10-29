@@ -1,5 +1,7 @@
 """Terminal rendering for the Wavefront draft."""
 
+from io import StringIO
+
 from rich.console import Console, Group
 from rich.panel import Panel
 from rich.table import Table
@@ -54,6 +56,33 @@ def render(library: Library, selected: int = 0, query: str = "") -> Group:
     )
     footer = Text("  / search    q queue    space play/pause    n next    ↑↓ move    ? shortcuts    esc quit", style=MUTED)
     return Group(header, Panel(table, title="DISCOVER", title_align="left", border_style="#2d4055"), now_panel, Panel(Text("\n".join(str(x) for x in queue_lines)), title="UP NEXT", border_style="#2d4055"), footer)
+
+
+def draw(stdscr, library: Library, selected: int = 0, query: str = "") -> None:
+    """Render one complete frame through the curses-owned terminal surface.
+
+    Rich must render into a bounded buffer here rather than writing directly to
+    ``/dev/tty``. Curses owns the screen in interactive mode; bypassing it
+    leaves stale cells and lets Rich's width detection disagree with the
+    curses window, which is especially visible under WSL.
+    """
+    rows, columns = stdscr.getmaxyx()
+    columns = max(1, columns)
+    console = Console(
+        file=StringIO(),
+        record=True,
+        color_system=None,
+        force_terminal=False,
+        width=columns,
+        height=max(1, rows),
+    )
+    console.print(render(library, selected, query))
+    lines = console.export_text(styles=False, clear=False).splitlines()
+
+    stdscr.erase()
+    for row, line in enumerate(lines[: max(0, rows)]):
+        stdscr.addnstr(row, 0, line[:columns], columns)
+    stdscr.refresh()
 
 
 def demo() -> None:

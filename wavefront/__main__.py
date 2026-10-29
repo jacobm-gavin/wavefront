@@ -8,7 +8,7 @@ from rich.console import Console
 
 from .model import Library, Track
 from .providers import YtDlpSoundCloudSearch
-from .ui import demo, render
+from .ui import demo, draw, render
 
 
 TRACKS = [
@@ -28,8 +28,7 @@ def run(stdscr) -> None:
     selected = 0
     query = ""
     while True:
-        stdscr.erase()
-        Console(file=open("/dev/tty", "w"), force_terminal=True).print(render(library, selected, query))
+        draw(stdscr, library, selected, query)
         key = stdscr.get_wch()
         if key in ("Q", "\x1b"):
             return
