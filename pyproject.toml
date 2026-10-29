@@ -1,0 +1,12 @@
+[project]
+name = "wavefront"
+version = "0.1.0"
+description = "A calmer SoundCloud-first terminal music player"
+requires-python = ">=3.11"
+dependencies = ["rich>=13.9"]
+
+[project.scripts]
+wavefront = "wavefront.__main__:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
